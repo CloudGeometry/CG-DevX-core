@@ -1,30 +1,23 @@
 terraform {
-  backend "s3" {
-    bucket = ""
-    key    = "terraform/aws/terraform.tfstate"
-
-    region  = ""
-    encrypt = true
-  }
+  # Remote backend configuration
+  # <TF_HOSTING_REMOTE_BACKEND>
 }
 
-provider "aws" {
-  region = var.aws_region
-  default_tags {
-    tags = {
-      ClusterName   = "cgdevx-demo"
-      ProvisionedBy = "cgdevx"
-    }
-  }
+locals {
+  name          = "<PRIMARY_CLUSTER_NAME>"
+  ProvisionedBy = "cgdevx"
+  region        = "<CLOUD_REGION>"
+  email         = ["<OWNER_EMAIL>"]
 }
+
+# Provider configuration
+# <TF_HOSTING_PROVIDER>
 
 module "hosting-provider" {
-  source = "../modules/cloud-aws"
-
-  # aws_account_id     = var.aws_account_id
-  # cluster_name       = "cgdevx-demo"
-  # node_capacity_type = "ON_DEMAND"
-  # ami_type           = var.ami_type
-  # instance_type      = var.instance_type
+  source       = "../modules/cloud_<CLOUD_PROVIDER>"
+  cluster_name = local.name
+  region       = local.region
+  alert_emails = local.email
 }
+
 
