@@ -3,14 +3,6 @@ kind: ConfigMap
 metadata:
   name: argocd-cm
 data:
-  url: 'https://<ARGO_CD_INGRESS_URL>'
-  oidc.config: |
-    name: Vault
-    issuer: https://<OIDC_PROVIDER_URL>
-    clientID: $argocd-oidc-secret:clientId
-    clientSecret: $argocd-oidc-secret:clientSecret
-    requestedScopes: ["openid", "groups", "user", "profile", "email"]
-    requestedIDTokenClaims: {"groups": {"essential": true}}
   application.resourceTrackingMethod: annotation
   admin.enabled: 'true'
   statusbadge.enabled: 'true'
@@ -30,3 +22,11 @@ data:
           end
         end
         return hs
+  url: 'https://<CD_INGRESS_URL>'
+  oidc.config: |
+    name: Vault
+    issuer: https://<OIDC_PROVIDER_URL>
+    clientID: $argocd-oidc-secret:clientId
+    clientSecret: $argocd-oidc-secret:clientSecret
+    requestedScopes: ["openid", "groups", "user", "profile", "email"]
+    requestedIDTokenClaims: {"groups": {"essential": true}}

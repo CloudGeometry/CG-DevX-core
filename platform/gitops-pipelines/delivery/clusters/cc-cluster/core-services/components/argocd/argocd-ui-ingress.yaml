@@ -10,11 +10,10 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-passthrough: 'true'
     # If you encounter a redirect loop or are getting a 307 response code
     # then you need to force the nginx ingress to connect to the backend using HTTPS.
-    #
     nginx.ingress.kubernetes.io/backend-protocol: 'HTTPS'
 spec:
   rules:
-    - host: <ARGO_CD_INGRESS_URL>
+    - host: <CD_INGRESS_URL>
       http:
         paths:
           - path: /
@@ -26,5 +25,5 @@ spec:
                   name: https
   tls:
     - hosts:
-        - <ARGO_CD_INGRESS_URL>
-      secretName: argocd-secret # do not change, this is provided by Argo CD
+        - <CD_INGRESS_URL>
+      secretName: argocd-secret # do not change, Argo CD provides this

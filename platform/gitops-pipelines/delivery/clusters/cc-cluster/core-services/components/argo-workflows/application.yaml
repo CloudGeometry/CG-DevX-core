@@ -6,10 +6,10 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "10"
 spec:
-  project: default
+  project: core
   source:
     repoURL: https://argoproj.github.io/argo-helm
-    targetRevision: 0.20.1
+    targetRevision: 0.36.1
     helm:
       values: |-
         nameOverride: argo
@@ -22,14 +22,14 @@ spec:
               cpu: 1
               memory: 1024Mi
         server:
+          authMode: sso
           serviceAccount:
             create: true
             name: argo-server
             annotations:
-              <K8S_AWS_SERVICE_ACCOUNT_ROLE_MAPPING>: '<ARGO_CD_IAM_ROLE_RN>'
+              <K8S_ROLE_MAPPING>: "<CI_IAM_ROLE_RN>"
           extraArgs:
           - --secure
-          - --auth-mode=client
           - --auth-mode=sso
           ingress:
             enabled: true
@@ -37,15 +37,16 @@ spec:
             annotations:
               cert-manager.io/cluster-issuer: "letsencrypt-prod"
             hosts:
-              - <ARGO_CD_INGRESS_URL>
+              - <CI_INGRESS_URL>
             paths: 
               - /
             pathType: Prefix
             tls:
               - secretName: argo-tls
                 hosts:
-                  - <ARGO_CD_INGRESS_URL>
+                  - <CI_INGRESS_URL>
           sso:
+            enabled: true
             issuer: https://<OIDC_PROVIDER_URL>
             clientId:
               name: argo-secrets
@@ -53,7 +54,7 @@ spec:
             clientSecret:
               name: argo-secrets
               key: client-secret
-            redirectUrl: https://<ARGO_CD_OAUTH_CALLBACK_URL>
+            redirectUrl: https://<CI_OAUTH_CALLBACK_URL>
             scopes:
               - email
               - openid
@@ -64,7 +65,7 @@ spec:
             rbac:
               enabled: true
         useDefaultArtifactRepo: true
-        useStaticCredentials: true
+        useStaticCredentials: false
         artifactRepository:
           archiveLogs: false
           s3:
@@ -78,7 +79,7 @@ spec:
               /{{workflow.name}}\
               /{{pod.name}}"
             endpoint: s3.amazonaws.com
-            region: eu-central-1
+            region: <CLOUD_REGION>
             useSDKCreds: true
             encryptionOptions:
               enableEncryption: false

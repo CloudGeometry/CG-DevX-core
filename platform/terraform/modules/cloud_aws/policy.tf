@@ -1,7 +1,8 @@
 #custom policies
-resource "aws_iam_policy" "argoworkflow" {
-  name        = "${local.name}-argoworkflow-policy"
-  description = "ArgoWorkFlow IAM policy"
+
+resource "aws_iam_policy" "ci" {
+  name        = "${local.name}-ci-policy"
+  description = "Cloud Native CI IAM policy"
 
   policy = jsonencode({
     "Version" : "2012-10-17",
@@ -9,7 +10,7 @@ resource "aws_iam_policy" "argoworkflow" {
       {
         "Action" : "s3:*",
         "Effect" : "Allow",
-        "Resource" : "arn:aws:s3:::*"
+        "Resource" : module.artifacts_repository.s3_bucket_arn
       }
     ]
   })
@@ -17,28 +18,10 @@ resource "aws_iam_policy" "argoworkflow" {
   tags = local.tags
 }
 
-resource "aws_iam_policy" "harbor_policy" {
-  name        = "${local.name}-harbor-policy"
-  description = "Image registry (Harbor) policy for image replication"
-
-  policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Action" : [
-          "ecr:ReplicateImage"
-        ],
-        "Effect" : "Allow",
-        "Resource" : "arn:aws:ecr:${var.region}:${local.aws_account}:*"
-      }
-    ]
-  })
-  tags = local.tags
-}
-resource "aws_iam_policy" "atlantis_policy" {
-  name        = "${local.name}-atlantis-policy"
-  description = "Atlantis IAM policy"
-  policy = jsonencode({
+resource "aws_iam_policy" "iac_pr_automation_policy" {
+  name        = "${local.name}-iac-pr-automation-policy"
+  description = "IaC PR Automation tool IAM policy"
+  policy      = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : [
       {
@@ -51,16 +34,26 @@ resource "aws_iam_policy" "atlantis_policy" {
 
   tags = local.tags
 }
-resource "aws_iam_policy" "vault_policy" {
-  name        = "${local.name}-vault-policy"
-  description = "Vault IAM policy"
-  policy = jsonencode({
+resource "aws_iam_policy" "secret_manager_policy" {
+  name        = "${local.name}-secret-manager-policy"
+  description = "Secret manager IAM policy"
+  policy      = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : [
       {
-        "Action" : "secretsmanager:*",
+        "Action" : [
+          "kms:GetPublicKey",
+          "kms:GetKeyRotationStatus",
+          "kms:GetKeyPolicy",
+          "kms:DescribeKey",
+          "kms:ListKeyPolicies",
+          "kms:ListResourceTags",
+          "tag:GetResources",
+          "kms:Encrypt",
+          "kms:Decrypt"
+        ],
         "Effect" : "Allow",
-        "Resource" : "arn:aws:secretsmanager:${var.region}:${local.aws_account}:*"
+        "Resource" : "arn:aws:kms:${var.region}:${local.aws_account}:key/*"
       }
     ]
   })

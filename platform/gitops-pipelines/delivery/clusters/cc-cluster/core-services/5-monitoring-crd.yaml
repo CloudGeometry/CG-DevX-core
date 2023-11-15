@@ -1,19 +1,19 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: argo-cwfts
+  name: monitoring-crd-components
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: '30'
+    argocd.argoproj.io/sync-wave: '5'
 spec:
-  project: default
+  project: core
   source:
     repoURL: <GIT_REPOSITORY_GIT_URL>
-    path: gitops_pipelines/delivery/clusters/cc_cluster/core_services/components/argo-workflows/cluster-workflow-templates
+    path: gitops-pipelines/delivery/clusters/cc-cluster/core-services/components/monitoringcrd
     targetRevision: HEAD
   destination:
     server: https://kubernetes.default.svc
-    namespace: argo
+    namespace: monitoring
   syncPolicy:
     automated:
       prune: true

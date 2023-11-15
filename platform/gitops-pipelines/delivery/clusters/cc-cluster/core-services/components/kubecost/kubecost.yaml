@@ -11,7 +11,7 @@ spec:
   destination:
     namespace: kubecost
     server: https://kubernetes.default.svc
-  project: default
+  project: core
   source:
     chart: cost-analyzer
     repoURL: https://kubecost.github.io/cost-analyzer/
@@ -22,7 +22,7 @@ spec:
         global:
           prometheus:
             enabled: false
-            fqdn: http://my-prometheus-server.prometheus.svc
+            fqdn: http://kube-prometheus-stack-prometheus.monitoring.svc:9090
   syncPolicy:
     automated:
       prune: true
